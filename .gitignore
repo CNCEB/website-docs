@@ -11,6 +11,15 @@
 /build
 *.tsbuildinfo
 
+# agents
+.agents
+.zcode
+.AGENTS.md
+.CLAUDE.md
+.claude
+.codex
+.buddy
+
 # misc
 .DS_Store
 *.pem
