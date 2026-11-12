@@ -1,0 +1,60 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "示例 API",
+    "version": "0.1.0",
+    "description": "占位 Schema，用于验证 API 文档渲染。正式接入时替换本文件即可。"
+  },
+  "servers": [{ "url": "https://api.example.com" }],
+  "tags": [{ "name": "示例" }],
+  "paths": {
+    "/ping": {
+      "get": {
+        "tags": ["示例"],
+        "operationId": "ping",
+        "summary": "健康检查",
+        "description": "返回服务运行状态。",
+        "responses": {
+          "200": {
+            "description": "服务正常",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": { "pong": { "type": "boolean" } }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/items": {
+      "get": {
+        "tags": ["示例"],
+        "operationId": "listItems",
+        "summary": "获取列表",
+        "description": "分页获取条目列表。",
+        "parameters": [
+          { "name": "page", "in": "query", "schema": { "type": "integer", "default": 1 } }
+        ],
+        "responses": { "200": { "description": "条目列表" } }
+      }
+    },
+    "/items/{id}": {
+      "get": {
+        "tags": ["示例"],
+        "operationId": "getItem",
+        "summary": "获取详情",
+        "description": "按 ID 获取单个条目。",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "条目详情" },
+          "404": { "description": "未找到" }
+        }
+      }
+    }
+  }
+}

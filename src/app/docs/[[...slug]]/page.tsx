@@ -12,11 +12,29 @@ import { getMDXComponents } from "@/components/mdx";
 import type { Metadata } from "next";
 import { createRelativeLink } from "fumadocs-ui/mdx";
 import { getPageImageUrl, getPageMarkdownUrl, gitConfig } from "@/lib/shared";
+import { OpenAPIPage } from "@/components/api-page";
 
 export default async function Page(props: PageProps<"/docs/[[...slug]]">) {
   const params = await props.params;
   const page = source.getPage(params.slug);
   if (!page) notFound();
+
+  if (page.type === "api") {
+    return (
+      <DocsPage
+        toc={page.data.toc}
+        full
+        tableOfContent={{ style: "block" }}
+        breadcrumb={{ includePage: false, includeRoot: false }}
+      >
+        <DocsTitle>{page.data.title}</DocsTitle>
+        <DocsDescription className="mb-0">
+          {page.data.description}
+        </DocsDescription>
+        <OpenAPIPage {...page.data.getOpenAPIPageProps()} />
+      </DocsPage>
+    );
+  }
 
   const MDX = page.data.body;
   const markdownUrl = getPageMarkdownUrl(page).url;
