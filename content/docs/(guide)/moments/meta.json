@@ -1,0 +1,7 @@
+{
+  "title": "Moments",
+  "icon": "Camera",
+  "root": "product",
+  "defaultOpen": false,
+  "pages": ["index", "installation", "---配置---", "config"]
+}

@@ -1,0 +1,7 @@
+{
+  "title": "云森",
+  "icon": "TreePine",
+  "root": "product",
+  "defaultOpen": false,
+  "pages": ["index", "dev-env", "---指南---", "guides"]
+}

@@ -1,0 +1,7 @@
+{
+  "title": "VacuolePao",
+  "icon": "PenLine",
+  "root": "product",
+  "defaultOpen": false,
+  "pages": ["index", "dev-env", "---指南---", "guides"]
+}

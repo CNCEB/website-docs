@@ -12,10 +12,10 @@ export const metadata: Metadata = {
     process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
   ),
   title: {
-    default: "My App",
-    template: "%s | My App",
+    default: "中云易冰",
+    template: "%s | 中云易冰",
   },
-  description: "Documentation built with Fumadocs",
+  description: "开发笔记、产品文档、API文档、经验分享 与高中生生存指南",
 };
 
 export default function Layout({ children }: LayoutProps<"/">) {

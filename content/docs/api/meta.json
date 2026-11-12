@@ -1,0 +1,6 @@
+{
+  "title": "API 文档",
+  "icon": "Braces",
+  "root": true,
+  "pages": ["index", "..."]
+}

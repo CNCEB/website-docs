@@ -1,0 +1,18 @@
+---
+title: TypeScript 常用技巧
+description: TypeScript 使用技巧的经验记录（示例文章）
+---
+
+这是一篇云森的示例文章，用于验证子目录层级、面包屑与 TOC 渲染。
+
+## 类型收窄
+
+使用 `in` 操作符或判空进行类型收窄。
+
+## 泛型约束
+
+```ts
+function pick<T extends object, K extends keyof T>(obj: T, key: K) {
+  return obj[key];
+}
+```

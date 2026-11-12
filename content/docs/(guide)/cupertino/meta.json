@@ -1,0 +1,7 @@
+{
+  "title": "Cupertino Astro",
+  "icon": "Command",
+  "root": "product",
+  "defaultOpen": false,
+  "pages": ["index", "installation", "---配置---", "config"]
+}
