@@ -20,3 +20,25 @@ description: TypeScript 项目配置的经验记录（示例文章）
 ## 路径别名
 
 使用 `@/` 指向 `src` 目录。
+
+## 构建流程示意
+
+```mermaid
+flowchart LR
+  A[源码 src/] --> B{tsc 类型检查}
+  B -- 通过 --> C[Next.js 构建]
+  B -- 失败 --> D[修复类型]
+  D --> B
+  C --> E[部署上线]
+```
+
+## 类型推导示例
+
+行内公式示例：质能方程 $E = mc^2$，时间复杂度 $O(n \log n)$。
+
+> [!NOTE]
+> MDX 中行内公式不能直接包含 `{}`（会被解析为 JSX 表达式），复杂公式请使用 `math` 代码块。
+
+```math
+T = \arg\min_{\theta} \sum_{i=1}^{n} \mathcal{L}(f_\theta(x_i), y_i)
+```
