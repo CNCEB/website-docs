@@ -2,6 +2,6 @@
   "title": "开发笔记",
   "icon": "NotebookPen",
   "root": true,
-  "pagesIndex": "[VacuolePao](/docs/vacuolepao)",
-  "pages": ["vacuolepao", "yunsen"]
+  "pagesIndex": "notes-intro",
+  "pages": ["notes-intro", "vacuolepao", "yunsen"]
 }

@@ -1,3 +1,7 @@
 {
-  "pages": ["(notes)", "(guide)", "api"]
+  "pages": [
+    "(notes)",
+    "(guide)",
+    "api"
+  ]
 }

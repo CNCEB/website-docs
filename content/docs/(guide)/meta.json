@@ -2,6 +2,6 @@
   "title": "产品文档",
   "icon": "Boxes",
   "root": true,
-  "pagesIndex": "[Moments](/docs/moments)",
-  "pages": ["moments", "cupertino"]
+  "pagesIndex": "guide-intro",
+  "pages": ["guide-intro", "moments", "cupertino"]
 }

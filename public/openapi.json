@@ -1,27 +1,45 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "示例 API",
-    "version": "0.1.0",
-    "description": "占位 Schema，用于验证 API 文档渲染。正式接入时替换本文件即可。"
+    "title": "Xiaomi Weather API",
+    "version": "1.0.0",
+    "description": "基于 EdgeOne 边缘函数封装的小米天气接口。支持中文城市名、城市 ID、经纬度查询，并自动补全上游鉴权参数。"
   },
-  "servers": [{ "url": "https://api.example.com" }],
-  "tags": [{ "name": "示例" }],
+  "servers": [
+    {
+      "url": "https://weather.api.236668.xyz",
+      "description": "生产环境"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Weather",
+      "description": "天气预报与分钟级降水"
+    },
+    {
+      "name": "City",
+      "description": "城市搜索、定位与热门城市"
+    },
+    {
+      "name": "Meta",
+      "description": "接口信息"
+    }
+  ],
   "paths": {
-    "/ping": {
+    "/v1": {
       "get": {
-        "tags": ["示例"],
-        "operationId": "ping",
-        "summary": "健康检查",
-        "description": "返回服务运行状态。",
+        "tags": [
+          "Meta"
+        ],
+        "summary": "获取接口说明",
+        "operationId": "getApiHelp",
         "responses": {
           "200": {
-            "description": "服务正常",
+            "description": "接口说明",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": { "pong": { "type": "boolean" } }
+                  "$ref": "#/components/schemas/HelpResponse"
                 }
               }
             }
@@ -29,31 +47,710 @@
         }
       }
     },
-    "/items": {
+    "/v1/help": {
       "get": {
-        "tags": ["示例"],
-        "operationId": "listItems",
-        "summary": "获取列表",
-        "description": "分页获取条目列表。",
-        "parameters": [
-          { "name": "page", "in": "query", "schema": { "type": "integer", "default": 1 } }
+        "tags": [
+          "Meta"
         ],
-        "responses": { "200": { "description": "条目列表" } }
+        "summary": "获取接口说明（别名）",
+        "operationId": "getApiHelpAlias",
+        "responses": {
+          "200": {
+            "description": "接口说明",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HelpResponse"
+                }
+              }
+            }
+          }
+        }
       }
     },
-    "/items/{id}": {
+    "/v1/weather": {
       "get": {
-        "tags": ["示例"],
-        "operationId": "getItem",
-        "summary": "获取详情",
-        "description": "按 ID 获取单个条目。",
+        "tags": [
+          "Weather"
+        ],
+        "summary": "查询天气",
+        "description": "可使用中文城市名、城市 ID、locationKey 或经纬度查询。优先级依次为 city、cityId、locationKey、经纬度。",
+        "operationId": "getWeather",
         "parameters": [
-          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+          {
+            "$ref": "#/components/parameters/CityQuery"
+          },
+          {
+            "$ref": "#/components/parameters/CityIdQuery"
+          },
+          {
+            "$ref": "#/components/parameters/LocationKeyQuery"
+          },
+          {
+            "$ref": "#/components/parameters/LatitudeQuery"
+          },
+          {
+            "$ref": "#/components/parameters/LongitudeQuery"
+          },
+          {
+            "$ref": "#/components/parameters/DaysQuery"
+          }
         ],
         "responses": {
-          "200": { "description": "条目详情" },
-          "404": { "description": "未找到" }
+          "200": {
+            "description": "天气查询成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WeatherResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "502": {
+            "$ref": "#/components/responses/UpstreamError"
+          }
         }
+      }
+    },
+    "/v1/weather/{city}": {
+      "get": {
+        "tags": [
+          "Weather"
+        ],
+        "summary": "使用中文城市名查询天气",
+        "operationId": "getWeatherByCityPath",
+        "parameters": [
+          {
+            "name": "city",
+            "in": "path",
+            "required": true,
+            "description": "中文城市名称，例如北京、上海、广州市。",
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "example": "北京"
+          },
+          {
+            "$ref": "#/components/parameters/DaysQuery"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "天气查询成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WeatherResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "502": {
+            "$ref": "#/components/responses/UpstreamError"
+          }
+        }
+      }
+    },
+    "/v1/rain": {
+      "get": {
+        "tags": [
+          "Weather"
+        ],
+        "summary": "查询分钟级降水",
+        "description": "查询指定城市或坐标未来约两小时的分钟级降水预报。",
+        "operationId": "getMinutelyRain",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/CityQuery"
+          },
+          {
+            "$ref": "#/components/parameters/CityIdQuery"
+          },
+          {
+            "$ref": "#/components/parameters/LocationKeyQuery"
+          },
+          {
+            "$ref": "#/components/parameters/LatitudeQuery"
+          },
+          {
+            "$ref": "#/components/parameters/LongitudeQuery"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "降水查询成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RainResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "502": {
+            "$ref": "#/components/responses/UpstreamError"
+          }
+        }
+      }
+    },
+    "/v1/rain/{city}": {
+      "get": {
+        "tags": [
+          "Weather"
+        ],
+        "summary": "使用中文城市名查询分钟级降水",
+        "operationId": "getMinutelyRainByCityPath",
+        "parameters": [
+          {
+            "name": "city",
+            "in": "path",
+            "required": true,
+            "description": "中文城市名称。",
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "example": "北京"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "降水查询成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RainResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "502": {
+            "$ref": "#/components/responses/UpstreamError"
+          }
+        }
+      }
+    },
+    "/v1/city/search": {
+      "get": {
+        "tags": [
+          "City"
+        ],
+        "summary": "搜索城市",
+        "operationId": "searchCities",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": true,
+            "description": "城市名称关键词。也兼容 city 或 name 参数。",
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "example": "北京"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "城市搜索结果",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CitySearchResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "502": {
+            "$ref": "#/components/responses/UpstreamError"
+          }
+        }
+      }
+    },
+    "/v1/city/geo": {
+      "get": {
+        "tags": [
+          "City"
+        ],
+        "summary": "通过经纬度定位城市",
+        "operationId": "locateCityByCoordinates",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/RequiredLatitudeQuery"
+          },
+          {
+            "$ref": "#/components/parameters/RequiredLongitudeQuery"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "坐标附近的城市",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CityListResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "502": {
+            "$ref": "#/components/responses/UpstreamError"
+          }
+        }
+      }
+    },
+    "/v1/city/hot": {
+      "get": {
+        "tags": [
+          "City"
+        ],
+        "summary": "获取热门城市",
+        "operationId": "getHotCities",
+        "responses": {
+          "200": {
+            "description": "热门城市列表",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HotCityResponse"
+                }
+              }
+            }
+          },
+          "502": {
+            "$ref": "#/components/responses/UpstreamError"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "parameters": {
+      "CityQuery": {
+        "name": "city",
+        "in": "query",
+        "required": false,
+        "description": "中文城市名称。",
+        "schema": {
+          "type": "string"
+        },
+        "example": "北京"
+      },
+      "CityIdQuery": {
+        "name": "cityId",
+        "in": "query",
+        "required": false,
+        "description": "中国天气城市 ID，例如北京为 101010100。",
+        "schema": {
+          "type": "string",
+          "pattern": "^[0-9]+$"
+        },
+        "example": "101010100"
+      },
+      "LocationKeyQuery": {
+        "name": "locationKey",
+        "in": "query",
+        "required": false,
+        "description": "小米天气位置键。",
+        "schema": {
+          "type": "string"
+        },
+        "example": "weathercn:101010100"
+      },
+      "LatitudeQuery": {
+        "name": "lat",
+        "in": "query",
+        "required": false,
+        "description": "纬度；也兼容 latitude 参数。",
+        "schema": {
+          "type": "number",
+          "minimum": -90,
+          "maximum": 90
+        },
+        "example": 39.904
+      },
+      "LongitudeQuery": {
+        "name": "lon",
+        "in": "query",
+        "required": false,
+        "description": "经度；也兼容 lng 或 longitude 参数。",
+        "schema": {
+          "type": "number",
+          "minimum": -180,
+          "maximum": 180
+        },
+        "example": 116.408
+      },
+      "RequiredLatitudeQuery": {
+        "name": "lat",
+        "in": "query",
+        "required": true,
+        "description": "纬度；也兼容 latitude 参数。",
+        "schema": {
+          "type": "number",
+          "minimum": -90,
+          "maximum": 90
+        },
+        "example": 39.904
+      },
+      "RequiredLongitudeQuery": {
+        "name": "lon",
+        "in": "query",
+        "required": true,
+        "description": "经度；也兼容 lng 或 longitude 参数。",
+        "schema": {
+          "type": "number",
+          "minimum": -180,
+          "maximum": 180
+        },
+        "example": 116.408
+      },
+      "DaysQuery": {
+        "name": "days",
+        "in": "query",
+        "required": false,
+        "description": "请求预报天数。服务端会限制在 1 至 15 天，默认 7 天。",
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 15,
+          "default": 7
+        },
+        "example": 7
+      }
+    },
+    "responses": {
+      "BadRequest": {
+        "description": "请求参数错误",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "未找到城市或接口",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            }
+          }
+        }
+      },
+      "UpstreamError": {
+        "description": "上游天气服务请求失败",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "HelpResponse": {
+        "type": "object",
+        "required": [
+          "ok",
+          "name",
+          "endpoints"
+        ],
+        "properties": {
+          "ok": {
+            "type": "boolean",
+            "const": true
+          },
+          "name": {
+            "type": "string",
+            "example": "Xiaomi Weather API"
+          },
+          "endpoints": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        }
+      },
+      "Location": {
+        "type": "object",
+        "properties": {
+          "affiliation": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "example": "中国"
+          },
+          "key": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "example": "weathercn:101010100"
+          },
+          "locationKey": {
+            "type": "string",
+            "example": "weathercn:101010100"
+          },
+          "name": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "example": "北京市"
+          },
+          "latitude": {
+            "type": [
+              "string",
+              "number",
+              "null"
+            ],
+            "example": "39.904"
+          },
+          "longitude": {
+            "type": [
+              "string",
+              "number",
+              "null"
+            ],
+            "example": "116.408"
+          },
+          "status": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "timeZoneShift": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "example": 28800
+          }
+        },
+        "additionalProperties": true
+      },
+      "WeatherResponse": {
+        "type": "object",
+        "required": [
+          "ok",
+          "location",
+          "days",
+          "weather"
+        ],
+        "properties": {
+          "ok": {
+            "type": "boolean",
+            "const": true
+          },
+          "location": {
+            "$ref": "#/components/schemas/Location"
+          },
+          "days": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 15
+          },
+          "weather": {
+            "$ref": "#/components/schemas/WeatherPayload"
+          }
+        }
+      },
+      "WeatherPayload": {
+        "type": "object",
+        "description": "小米天气上游返回的数据。字段可能随地区和上游版本变化。",
+        "properties": {
+          "current": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "forecastDaily": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "forecastHourly": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "aqi": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "alerts": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          "minutely": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "additionalProperties": true
+          },
+          "updateTime": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          }
+        },
+        "additionalProperties": true
+      },
+      "RainResponse": {
+        "type": "object",
+        "required": [
+          "ok",
+          "location",
+          "rain"
+        ],
+        "properties": {
+          "ok": {
+            "type": "boolean",
+            "const": true
+          },
+          "location": {
+            "$ref": "#/components/schemas/Location"
+          },
+          "rain": {
+            "type": "object",
+            "properties": {
+              "precipitation": {
+                "type": "object",
+                "additionalProperties": true
+              },
+              "status": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "new": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "additionalProperties": true
+          }
+        }
+      },
+      "CitySearchResponse": {
+        "type": "object",
+        "required": [
+          "ok",
+          "query",
+          "cities"
+        ],
+        "properties": {
+          "ok": {
+            "type": "boolean",
+            "const": true
+          },
+          "query": {
+            "type": "string"
+          },
+          "cities": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Location"
+            }
+          }
+        }
+      },
+      "CityListResponse": {
+        "type": "object",
+        "required": [
+          "ok",
+          "cities"
+        ],
+        "properties": {
+          "ok": {
+            "type": "boolean",
+            "const": true
+          },
+          "cities": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Location"
+            }
+          }
+        }
+      },
+      "HotCityResponse": {
+        "type": "object",
+        "required": [
+          "ok",
+          "cities"
+        ],
+        "properties": {
+          "ok": {
+            "type": "boolean",
+            "const": true
+          },
+          "cities": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Location"
+            }
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "required": [
+          "ok",
+          "error",
+          "message"
+        ],
+        "properties": {
+          "ok": {
+            "type": "boolean",
+            "const": false
+          },
+          "error": {
+            "type": "string",
+            "example": "REQUEST_FAILED"
+          },
+          "message": {
+            "type": "string",
+            "example": "没有找到这个城市"
+          }
+        },
+        "additionalProperties": true
       }
     }
   }
