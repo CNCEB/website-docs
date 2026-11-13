@@ -2,6 +2,5 @@
   "title": "产品文档",
   "icon": "Boxes",
   "root": true,
-  "pagesIndex": "guide-intro",
-  "pages": ["guide-intro", "moments", "cupertino"]
+  "pages": ["moments", "cupertino"]
 }

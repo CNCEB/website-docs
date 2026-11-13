@@ -2,6 +2,5 @@
   "title": "开发笔记",
   "icon": "NotebookPen",
   "root": true,
-  "pagesIndex": "notes-intro",
-  "pages": ["notes-intro", "vacuolepao", "yunsen"]
+  "pages": ["vacuolepao", "yunsen"]
 }
