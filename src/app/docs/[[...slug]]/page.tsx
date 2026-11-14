@@ -14,7 +14,6 @@ import type { Metadata } from "next";
 import { createRelativeLink } from "fumadocs-ui/mdx";
 import { getPageImageUrl, getPageMarkdownUrl, gitConfig } from "@/lib/shared";
 import { OpenAPIPage } from "@/components/api-page";
-import { Feedback } from "@/components/feedback";
 
 export default async function Page(props: PageProps<"/docs/[[...slug]]">) {
   const params = await props.params;
@@ -33,7 +32,8 @@ export default async function Page(props: PageProps<"/docs/[[...slug]]">) {
         <DocsDescription className="mb-0">
           {page.data.description}
         </DocsDescription>
-        <OpenAPIPage {...page.data.getOpenAPIPageProps()} />
+        {/* 页面顶部已由 DocsDescription 展示描述，组件内的重复描述关闭 */}
+        <OpenAPIPage {...page.data.getOpenAPIPageProps()} showDescription={false} />
       </DocsPage>
     );
   }
@@ -67,7 +67,6 @@ export default async function Page(props: PageProps<"/docs/[[...slug]]">) {
           })}
         />
       </DocsBody>
-      <Feedback url={page.url} />
       {page.data.lastModified && <PageLastUpdate date={page.data.lastModified} />}
     </DocsPage>
   );

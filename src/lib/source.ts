@@ -23,7 +23,7 @@ const docs = defineDocs({
 export const source = loader(
   {
     docs: docs.toFumadocsSource(),
-    api: await openapi.staticSource({ baseDir: 'api' }),
+    api: await openapi.staticSource({ baseDir: 'api', groupBy: 'tag' }),
   },
   {
     baseUrl: docsRoute,

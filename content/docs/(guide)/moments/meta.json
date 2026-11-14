@@ -1,5 +1,6 @@
 {
   "title": "Moments",
+  "description": "VacuolePao 的 Moments 项目文档",
   "icon": "Camera",
   "root": "product",
   "defaultOpen": false,
